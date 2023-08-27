@@ -1,0 +1,16 @@
+@import './scss/abstracts/variable';
+@import './scss/abstracts/mixins';
+@import './scss/abstracts/extends';
+@import './scss/utils/utils';
+@import './scss//layout/grid';
+@import './scss/base/reset';
+
+//mixins
+
+
+
+//components
+@import './scss/components/Navbar';
+@import './scss/components/notFound';
+@import './scss/components/loader';
+@import './scss/components/account';

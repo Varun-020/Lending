@@ -1,0 +1,42 @@
+{
+  "name": "lending",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon server.js",
+    "start": "node server.js",
+    "client": "npm start --prefix frontend",
+    "clientInstall": "npm install --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "heroku-postbuild": "npm run clientInstall && npm run build",
+    "dev": "concurrently \" npm run server  \" \" npm run client \""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Varun-020/Lending.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Varun-020/Lending/issues"
+  },
+  "homepage": "https://github.com/Varun-020/Lending#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "concurrently": "^8.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "formidable": "^3.5.1",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.5",
+    "mysql2": "^3.6.0",
+    "nodemailer": "^6.9.4",
+    "nodemon": "^3.0.1",
+    "sequelize": "^6.32.1",
+    "uuidv4": "^6.2.13"
+  }
+}
