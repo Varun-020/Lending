@@ -1,6 +1,6 @@
 import {
 	CLOSE_LOADER, LOGIN_ERRORS, LOGOUT, REGISTER_ERRORS, SET_LOADER, SET_TOKEN,
-	SET_SUCCESS_MESSAGE, REMOVE_SUCCESS_MESSAGE
+	SET_SUCCESS_MESSAGE, REMOVE_SUCCESS_MESSAGE, REMOVE_ERRORS
 } from "../types/UserTypes";
 import jwt_decode from 'jwt-decode';
 
@@ -43,6 +43,13 @@ const AuthReducer = (state = initState, action) => {
 	else if (action.type === REGISTER_ERRORS) {
 		return { ...state, registerErrors: action.payload };
 	}
+	else if (action.type === REMOVE_ERRORS) {
+		return {
+			...state,
+			loginErrors: [],
+			registerErrors: [],
+		};
+	}
 	else if (action.type === SET_TOKEN) {
 		const decoded = verifyToken(action.payload);
 		const { user } = decoded;
@@ -57,10 +64,7 @@ const AuthReducer = (state = initState, action) => {
 	else if (action.type === LOGOUT) {
 		return { ...state, token: '', user: '' };
 	} else if (action.type === LOGIN_ERRORS) {
-		return {
-			...state,
-			loginErrors: action.payload,
-		};
+		return { ...state, loginErrors: action.payload, };
 	}
 	else if (action.type === SET_SUCCESS_MESSAGE) {
 		return {

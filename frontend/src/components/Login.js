@@ -2,10 +2,32 @@ import React from 'react'
 import { Helmet } from 'react-helmet';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { postLogin } from '../store/asyncMethods/AuthMethods';
+import { postLogin, removeSuccessMessage } from '../store/asyncMethods/AuthMethods';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { REMOVE_SUCCESS_MESSAGE } from '../store/types/UserTypes';
+import { Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
+import { Link, Grid, Box } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Typography, Container } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+
+function Copyright(props) {
+    return (
+        <Typography variant="body2" color="text.secondary" align="center" {...props}>
+            {'Copyright © '}
+            <Link color="inherit" href="#">
+                abc.com
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+        </Typography>
+    );
+}
+
+
+const defaultTheme = createTheme();
+
 
 function Login(props) {
     const dispatch = useDispatch();
@@ -15,10 +37,17 @@ function Login(props) {
         email: '',
         password: '',
     });
+
+    const [loginMode, setLoginMode] = useState('password');
+    const handleLoginMode = (e, mode) => {
+        setLoginMode(mode);
+    }
+
+
     const handleInputs = (e) => {
         setState({ ...state, [e.target.name]: e.target.value })
     }
-    const userLogin = async e => {
+    const userLogin = async (e) => {
         e.preventDefault();
         dispatch(postLogin(state));
     }
@@ -35,48 +64,106 @@ function Login(props) {
         if (successMessage) {
             toast.success(successMessage)
         }
-        dispatch({ type: REMOVE_SUCCESS_MESSAGE })
+        dispatch(removeSuccessMessage())
     }, [successMessage]);
 
     return (
-        <>
+        <ThemeProvider theme={defaultTheme}>
             <Helmet>
                 <title>User Login</title>
                 <meta name="description" content=" user login to access all blogs are here this is the homepage html css js react mongodb express nodejs " />
             </Helmet>
-            <div className="row mt-50">
-                <div className="col-8">
-                    <Toaster
-                        position='top-right' reverseOrder={false}
-                        toastOptions={{
-                            style: {
-                                fontSize: '14px',
-                            },
-                        }}
-                    />
-                </div>
-                <div className="col-4">
-                    <div className="account">
-                        <div className="account__section">
-                            <form onSubmit={userLogin} >
-                                <div className="group">
-                                    <h3 className="form-heading">Login</h3>
-                                </div>
-                                <div className="group">
-                                    <input type="email" name="email" value={state.email} onChange={handleInputs} placeholder="abc@example.com" className="group__control" />
-                                </div>
-                                <div className="group">
-                                    <input type="password" name="password" value={state.password} onChange={handleInputs} placeholder="Enter Password" className="group__control" />
-                                </div>
-                                <div className="group">
-                                    <input type="submit" value={loading ? '...' : 'Login'} className="btn btn-default btn-block" />
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </>
+            <Toaster
+                position='top-center' reverseOrder={false}
+                toastOptions={{
+                    style: {
+                        fontSize: '14px',
+                    },
+                }}
+            />
+            <Container component="main" maxWidth="xs">
+                <CssBaseline />
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                        <LockOutlinedIcon />
+                    </Avatar>
+                    <Typography component="h1" variant="h5">
+                        Sign in
+                    </Typography>
+                    <Box component="form" onSubmit={userLogin} noValidate sx={{ mt: 1 }}>
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            name="email"
+                            autoComplete="email"
+                            autoFocus
+                            onChange={handleInputs}
+                        />
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                            onChange={handleInputs}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox value="remember" color="primary" />}
+                            label="Remember me"
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2 }}
+                        >
+                            Sign In
+                        </Button>
+                        <Grid container>
+                            <Grid item xs>
+                                <Link href="#" variant="body2">
+                                    Forgot password?
+                                </Link>
+                            </Grid>
+                            <Grid item>
+                                <Link href="/signup" variant="body2">
+                                    Don't have an account? Sign Up
+                                </Link>
+                            </Grid>
+                        </Grid>
+                        <Grid container>
+                            {
+                                loginMode === 'password' ?
+                                    <Grid item xs>
+                                        <Link href="#" variant="body2" onClick={(e) => handleLoginMode(e, 'otp')}>
+                                            Login with OTP?
+                                        </Link>
+                                    </Grid> :
+                                    <Grid item xs>
+                                        <Link href="#" variant="body2" onClick={(e) => handleLoginMode(e, 'password')}>
+                                            Login with Password?
+                                        </Link>
+                                    </Grid>
+                            }
+                        </Grid>
+                    </Box>
+                </Box>
+                <Copyright sx={{ mt: 8, mb: 4 }} />
+            </Container>
+        </ThemeProvider>
     )
 }
 

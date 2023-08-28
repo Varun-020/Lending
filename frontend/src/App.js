@@ -9,6 +9,7 @@ import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 
 
+
 function App() {
 
   return (
@@ -16,7 +17,7 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' exact element={<PrivateRoute><Home /></PrivateRoute>} />
-          <Route path='/login' exact element={<Login />} />
+          <Route path='/signin' exact element={<Login />} />
           <Route path='/signup' exact element={<Register />} />
           <Route component={<NotFound />} />
         </Routes>

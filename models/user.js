@@ -79,6 +79,15 @@ module.exports = function (sequelize, DataTypes) {
                 type: DataTypes.STRING(10),
                 allowNull: true,
             },
+            loginOtp: {
+                type: DataTypes.STRING(10),
+                allowNull: true,
+            },
+            phoneVerified: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
         },
         {
             timestamps: true,

@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store/asyncMethods/AuthMethods';
-import { REMOVE_SUCCESS_MESSAGE } from '../store/types/UserTypes';
+import { logout, removeSuccessMessage } from '../store/asyncMethods/AuthMethods';
 import toast, { Toaster } from 'react-hot-toast';
 
 
@@ -17,20 +16,20 @@ function Home() {
         if (successMessage) {
             toast.success(successMessage)
         }
-        dispatch({ type: REMOVE_SUCCESS_MESSAGE })
+        dispatch(removeSuccessMessage())
     }, [successMessage]);
 
     return (
         <div>
             <Toaster
-                position='top-right' reverseOrder={false}
+                position='top-center' reverseOrder={false}
                 toastOptions={{
                     style: {
                         fontSize: '14px',
                     },
                 }}
             />
-            <div>Home</div>
+            <div>Home---{user.fullName} </div>
             <div onClick={hanldeLogout}>Logout</div>
         </div>
     )

@@ -2,15 +2,10 @@ const express = require("express");
 const db = require("./models/index");
 const userRoutes = require("./routes/userRoutes");
 const path = require('path');
-const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-var corsOptions = {
-	origin: "http://localhost:8081"
-};
-app.use(express.json());
-app.use(cors(corsOptions));
+
 const port = process.env.PORT;
 
 app.use(express.static(path.join(__dirname, '/frontend/build/')));
@@ -24,7 +19,7 @@ db.sequelize.sync({ force: false }).then(() => {
 	console.log("db");
 });
 //middlewares
-
+app.use(express.json());
 
 //routes
 app.use('/', userRoutes);

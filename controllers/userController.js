@@ -49,6 +49,7 @@ module.exports.loginValidations = [
 ];
 module.exports.login = async (req, res) => {
     const { email, password } = req.body;
+    console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     try {
@@ -67,7 +68,8 @@ module.exports.login = async (req, res) => {
                 const token = jwt.sign({ user }, process.env.SECRET, { expiresIn: '7d' });
                 return res.json({ msg: "Login Successful", token });
             } else {
-                return res.status(401).json({ errros: [{ msg: "Password is not correct" }] });
+                console.log("else 401");
+                return res.status(400).json({ errors: [{ msg: "Password is not correct" }] });
             }
         } else {
             return res.status(404).json({ errors: [{ msg: "User not found" }] });

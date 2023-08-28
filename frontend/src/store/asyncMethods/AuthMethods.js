@@ -1,5 +1,11 @@
-import { CLOSE_LOADER, LOGIN_ERRORS, REGISTER_ERRORS, SET_LOADER, SET_TOKEN, SET_SUCCESS_MESSAGE, LOGOUT } from "../types/UserTypes";
+import { CLOSE_LOADER, LOGIN_ERRORS, REGISTER_ERRORS, SET_LOADER, SET_TOKEN, SET_SUCCESS_MESSAGE, LOGOUT, REMOVE_SUCCESS_MESSAGE } from "../types/UserTypes";
 import axios from "axios";
+
+export const removeSuccessMessage = () => {
+    return async (dispatch) => {
+        dispatch({ type: REMOVE_SUCCESS_MESSAGE });
+    }
+}
 
 export const postRegister = (state) => {
     return async (dispatch) => {
@@ -46,7 +52,6 @@ export const postLogin = (state) => {
         catch (error) {
             dispatch({ type: CLOSE_LOADER });
             dispatch({ type: LOGIN_ERRORS, payload: error.response.data.errors });
-            console.log(error.response.data.errors);
         }
     }
 };
@@ -69,6 +74,7 @@ export const logout = (state) => {
             dispatch({ type: LOGOUT, });
         }
         catch (error) {
+            console.log(error.response.data.errors);
             dispatch({ type: CLOSE_LOADER });
             dispatch({ type: LOGIN_ERRORS, payload: error.response.data.errors });
         }
