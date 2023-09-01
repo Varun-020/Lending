@@ -2,25 +2,54 @@ const { body, validationResult } = require("express-validator");
 const db = require('../models')
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { generateOTP } = require("../services/generateOTP");
+const { sendMail } = require("../services/sendOtpThroughMail");
+const { createAndStoreOtpForEmail, createAndStoreOtpForPhone } = require("./otpServices");
 
 const User = db.user
+const UserOTP = db.userotp
+
 
 module.exports.registerValidations = [
     body("firstName").not().isEmpty().withMessage("Firstname required"),
     body("lastName").not().isEmpty().withMessage("Lastname required"),
+    body("phoneNumber").isLength({ min: 10, max: 10 }).withMessage("phone number is not valid"),
     body("email").isEmail().withMessage("Email required"),
     body("password").isLength({ min: 8 }).withMessage("Password must be 8 characters minimum "),
 ];
 
 module.exports.register = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, phoneNumber, email, password } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     try {
         const checkUser = await User.findOne({
-            where: { email }
+            where: { email, phoneNumber }
         });
-        if (checkUser) return res.status(400).json({ errors: [{ msg: "Email is already taken" }] });
+        if (checkUser) {
+            if (checkUser.emailVerified && checkUser.phoneVerified) return res.status(400).json({ errors: [{ msg: "User with email and phone already exist. Plese Login!" }] });
+            else if (!checkUser.emailVerified) {
+                let otp = generateOTP();
+                let optStored = await createAndStoreOtpForEmail(checkUser, otp);
+                if (optStored) {
+                    let send = await sendMail({ receiver: email, subject: "OTP for Registration", otp })
+                    return res.status(200).json({ redirectTo: 'email', msg: "verify your email to continue registeration", userId: checkUser.id });
+                } else {
+                    return res.status(400).json({ errors: [{ msg: "Error while generating and sending OTP" }] });
+                }
+            }
+            else if (checkUser.emailVerified && !checkUser.phoneVerified) {
+                let otp = generateOTP();
+                let optStored = await createAndStoreOtpForPhone(checkUser, otp);
+                if (optStored) {
+                    //send otp
+                    return res.status(200).json({ redirectTo: 'phone', msg: "verify your phone to continue egisteration", userId: checkUser.id })
+                }
+                else {
+                    return res.status(400).json({ errors: [{ msg: "Error while generating and sending OTP" }] });
+                }
+            }
+        }
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
         try {
@@ -28,12 +57,19 @@ module.exports.register = async (req, res) => {
                 fullName: firstName + ' ' + lastName,
                 firstName,
                 lastName,
+                phoneNumber,
                 email,
                 password: hash,
-                logged_in: 'yes'
+                // logged_in: 'yes'
             });
-            const token = jwt.sign({ user }, process.env.SECRET, { expiresIn: '7d' });
-            return res.status(200).json({ msg: "Registration Successful", token });
+            let otp = generateOTP();
+            let optStored = await createAndStoreOtpForEmail(user, otp);
+            if (optStored) {
+                let send = await sendMail({ receiver: email, subject: "OTP for Registration", otp })
+                return res.status(200).json({ redirectTo: 'email', msg: "verify your email to continue registeration", userId: user.id });
+            } else {
+                return res.status(400).json({ errors: [{ msg: "Error while generating and sending OTP" }] });
+            }
         } catch (error) {
             return res.status(500).json({ errors: error.message })
         }
@@ -42,6 +78,59 @@ module.exports.register = async (req, res) => {
         return res.status(500).json({ errors: error })
     }
 };
+
+module.exports.verifyEmail = async (req, res) => {
+    const { emailOtp, userId } = req.body;
+    console.log(req.body);
+    try {
+        const userOTP = await UserOTP.findOne({
+            where: { id: userId }
+        });
+        if (userOTP) {
+            if (emailOtp == userOTP.emailVerificationOtp) {
+                let user = await User.findOne({ where: { id: userId } });
+                user = await user.update({ emailVerified: true });
+                let otp = generateOTP();
+                let optStored = await createAndStoreOtpForPhone(userOTP, otp);
+                if (optStored) {
+                    //send otp
+                    return res.status(200).json({ redirectTo: 'phone', msg: "verify your phone to continue egisteration", userId: user.id })
+                }
+                else {
+                    return res.status(400).json({ errors: [{ msg: "Error while generating and sending OTP" }] });
+                }
+            }
+            return res.status(400).json({ errors: [{ msg: "Invalid OTP, Please try again !" }] });
+        }
+
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({ errors: [{ msg: "Internal Server Error" }] });
+    }
+}
+
+module.exports.verifyPhone = async (req, res) => {
+    const { phoneOtp, userId } = req.body;
+    console.log(req.body);
+    try {
+        const userOTP = await UserOTP.findOne({
+            where: { id: userId }
+        });
+        if (userOTP) {
+            if (phoneOtp == userOTP.phoneVerificationOtp) {
+                let user = await User.findOne({ where: { id: userId } });
+                user = await user.update({ phoneVerified: true, logged_in: 'yes' });
+                const token = jwt.sign({ user }, process.env.SECRET, { expiresIn: '7d' });
+                return res.json({ msg: "Registration Successful", token });
+            }
+        }
+        return res.status(400).json({ errors: [{ msg: "Invalid OTP, Please try again !" }] });
+
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({ errors: [{ msg: "Internal Server Error" }] });
+    }
+}
 
 module.exports.loginValidations = [
     body("email").isEmail().withMessage("email required"),

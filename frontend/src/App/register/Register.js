@@ -3,7 +3,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { Helmet } from 'react-helmet';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { postRegister } from '../store/asyncMethods/AuthMethods';
+import { postRegister } from '../../store/asyncMethods/AuthMethods';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -40,27 +40,38 @@ function Register(props) {
     const [state, setState] = useState({
         firstName: '',
         lastName: '',
+        phoneNumber: '',
         email: '',
         password: '',
     });
     const dispatch = useDispatch();
-    const { loading, registerErrors, user } = useSelector((state) => state.AuthReducer);
+    const { loading, registerErrors, redirectTo } = useSelector((state) => state.AuthReducer);
 
     const handleInputs = (e) => {
         setState({ ...state, [e.target.name]: e.target.value })
+    }
+
+    const handleNumericInputs = (e) => {
+        const regex = /^[0-9\b]+$/;
+        if (regex.test(e.target.value)) {
+            setState({ ...state, phoneNumber: e.target.value });
+        }
     }
     const userRegister = async (e) => {
         e.preventDefault();
         dispatch(postRegister(state));
     }
+
     useEffect(() => {
         if (registerErrors?.length > 0) {
             registerErrors.map((error) => toast.error(error.msg));
         }
-        if (user) {
-            navigate('/')
+        if (redirectTo && redirectTo == 'email') {
+            navigate('/verifyEmail')
+        } else if (redirectTo && redirectTo == 'phone') {
+            navigate('/verifyPhone')
         }
-    }, [registerErrors, user]);
+    }, [registerErrors, redirectTo]);
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -117,6 +128,18 @@ function Register(props) {
                                     onChange={handleInputs}
                                 />
                             </Grid>
+                            <Grid item xs={12} >
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="phoneNumber"
+                                    label="Phone Number"
+                                    name="phoneNumber"
+                                    autoComplete="number"
+                                    onChange={handleNumericInputs}
+                                />
+                            </Grid>
                             <Grid item xs={12}>
                                 <TextField
                                     required
@@ -157,7 +180,7 @@ function Register(props) {
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
-                                <Link href="/signin" variant="body2">
+                                <Link href="/signinwithotp" variant="body2">
                                     Already have an account? Sign in
                                 </Link>
                             </Grid>

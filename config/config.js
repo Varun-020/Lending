@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-module.exports = {
+module.exports.dbConfig = {
     HOST: "localhost",
     USER: "root",
     PASSWORD: "root",
@@ -13,3 +13,10 @@ module.exports = {
         idle: 10000
     }
 };
+
+module.exports.emailConfig = {
+    auth: {
+        user: 'varunbaba020@gmail.com',
+        pass: 'erbpzveidygbuykm'
+    }
+}

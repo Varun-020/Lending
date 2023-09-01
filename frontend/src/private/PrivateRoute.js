@@ -6,7 +6,7 @@ function PrivateRoute({ children }) {
 	const { user } = useSelector((state) => state.AuthReducer);
 
 	if (!user) {
-		return <Navigate to="/signin" replace />
+		return <Navigate to="/signinwithotp" replace />
 	}
 	return children
 }

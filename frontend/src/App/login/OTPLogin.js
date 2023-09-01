@@ -2,7 +2,7 @@ import React from 'react'
 import { Helmet } from 'react-helmet';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { postLogin, removeSuccessMessage } from '../store/asyncMethods/AuthMethods';
+import { postLogin, removeSuccessMessage } from '../../store/asyncMethods/AuthMethods';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
@@ -29,14 +29,11 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 
-function Login(props) {
+function OTPLogin(props) {
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const { loginErrors, loading, successMessage, user } = useSelector(state => state.AuthReducer);
-    const [state, setState] = useState({
-        email: '',
-        password: '',
-    });
+    const { otpErrors, successMessage } = useSelector(state => state.AuthReducer);
+    const [state, setState] = useState('');
 
     const [loginMode, setLoginMode] = useState('password');
     const handleLoginMode = (e, mode) => {
@@ -45,20 +42,20 @@ function Login(props) {
 
 
     const handleInputs = (e) => {
-        setState({ ...state, [e.target.name]: e.target.value })
+        const regex = /^[0-9\b]+$/;
+        if (regex.test(e.target.value)) {
+            setState(e.target.value);
+        }
     }
-    const userLogin = async (e) => {
+    const userOTPLogin = async (e) => {
         e.preventDefault();
-        dispatch(postLogin(state));
+        // dispatch(postLogin(state));
     }
     useEffect(() => {
-        if (loginErrors?.length > 0) {
-            loginErrors.map((error) => toast.error(error.msg));
+        if (otpErrors?.length > 0) {
+            otpErrors.map((error) => toast.error(error.msg));
         }
-        if (user) {
-            navigate('/')
-        }
-    }, [loginErrors, user]);
+    }, [otpErrors]);
 
     useEffect(() => {
         if (successMessage) {
@@ -97,32 +94,18 @@ function Login(props) {
                     <Typography component="h1" variant="h5">
                         Sign in
                     </Typography>
-                    <Box component="form" onSubmit={userLogin} noValidate sx={{ mt: 1 }}>
+                    <Box component="form" onSubmit={userOTPLogin} noValidate sx={{ mt: 1 }}>
                         <TextField
                             margin="normal"
                             required
+                            type='number'
                             fullWidth
-                            id="email"
-                            label="Email Address"
-                            name="email"
-                            autoComplete="email"
+                            id="phone"
+                            label="Phone Number"
+                            name="phone"
+                            autoComplete="phone"
                             autoFocus
                             onChange={handleInputs}
-                        />
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            onChange={handleInputs}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
-                            label="Remember me"
                         />
                         <Button
                             type="submit"
@@ -130,34 +113,21 @@ function Login(props) {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Sign In
+                            Send OTP
                         </Button>
                         <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
+                            <Grid item>
+                                <Link href="/signinwithpassword" variant="body2">
+                                    Log in with password
                                 </Link>
                             </Grid>
+                        </Grid>
+                        <Grid container>
                             <Grid item>
                                 <Link href="/signup" variant="body2">
                                     Don't have an account? Sign Up
                                 </Link>
                             </Grid>
-                        </Grid>
-                        <Grid container>
-                            {
-                                loginMode === 'password' ?
-                                    <Grid item xs>
-                                        <Link href="#" variant="body2" onClick={(e) => handleLoginMode(e, 'otp')}>
-                                            Login with OTP?
-                                        </Link>
-                                    </Grid> :
-                                    <Grid item xs>
-                                        <Link href="#" variant="body2" onClick={(e) => handleLoginMode(e, 'password')}>
-                                            Login with Password?
-                                        </Link>
-                                    </Grid>
-                            }
                         </Grid>
                     </Box>
                 </Box>
@@ -167,4 +137,5 @@ function Login(props) {
     )
 }
 
-export default Login
+export default OTPLogin
+

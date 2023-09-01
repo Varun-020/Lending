@@ -1,17 +1,24 @@
 import {
 	CLOSE_LOADER, LOGIN_ERRORS, LOGOUT, REGISTER_ERRORS, SET_LOADER, SET_TOKEN,
-	SET_SUCCESS_MESSAGE, REMOVE_SUCCESS_MESSAGE, REMOVE_ERRORS
+	SET_SUCCESS_MESSAGE, REMOVE_SUCCESS_MESSAGE, REMOVE_ERRORS, VERIFICATION_EMAIL_ERRORS, SET_RESPONSE,
+	VERIFICATION_PHONE_ERRORS
 } from "../types/UserTypes";
 import jwt_decode from 'jwt-decode';
 
 const initState = {
+	loginMode: 'otp',
 	loading: false,
 	registerErrors: [],
 	loginErrors: [],
+	otpErrors: [],
+	emailVerificationErrors: [],
+	phoneVerificationErrors: [],
 	redirect: false,
 	token: '',
 	user: '',
-	successMessage: ''
+	successMessage: '',
+	redirectTo: '',
+	userId: ''
 }
 
 const verifyToken = (token) => {
@@ -76,6 +83,25 @@ const AuthReducer = (state = initState, action) => {
 		return {
 			...state,
 			successMessage: '',
+		};
+	}
+	else if (action.type === VERIFICATION_EMAIL_ERRORS) {
+		return {
+			...state,
+			emailVerificationErrors: action.payload,
+		};
+	}
+	else if (action.type === VERIFICATION_PHONE_ERRORS) {
+		return {
+			...state,
+			phoneVerificationErrors: action.payload,
+		};
+	}
+	else if (action.type === SET_RESPONSE) {
+		return {
+			...state,
+			redirectTo: action.payload.redirectTo,
+			userId: action.payload.userId
 		};
 	}
 	else if (action.type === LOGOUT) {
