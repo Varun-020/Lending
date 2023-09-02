@@ -2,7 +2,7 @@ import React from 'react'
 import { Helmet } from 'react-helmet';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { postLogin, removeSuccessMessage } from '../../store/asyncMethods/AuthMethods';
+import { sendOtpToMail, removeSuccessMessage } from '../../store/asyncMethods/AuthMethods';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
@@ -32,30 +32,32 @@ const defaultTheme = createTheme();
 function OTPLogin(props) {
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const { otpErrors, successMessage } = useSelector(state => state.AuthReducer);
-    const [state, setState] = useState('');
-
-    const [loginMode, setLoginMode] = useState('password');
-    const handleLoginMode = (e, mode) => {
-        setLoginMode(mode);
-    }
-
+    const { otpErrors, successMessage, redirectTo } = useSelector(state => state.AuthReducer);
+    const [state, setState] = useState({
+        email: ''
+    });
 
     const handleInputs = (e) => {
-        const regex = /^[0-9\b]+$/;
-        if (regex.test(e.target.value)) {
-            setState(e.target.value);
-        }
+        setState({ ...state, [e.target.name]: e.target.value })
     }
+    // const handleInputs = (e) => {
+    //     const regex = /^[0-9\b]+$/;
+    //     if (regex.test(e.target.value)) {
+    //         setState(e.target.value);
+    //     }
+    // }
     const userOTPLogin = async (e) => {
         e.preventDefault();
-        // dispatch(postLogin(state));
+        dispatch(sendOtpToMail(state));
     }
     useEffect(() => {
         if (otpErrors?.length > 0) {
             otpErrors.map((error) => toast.error(error.msg));
         }
-    }, [otpErrors]);
+        if (redirectTo && redirectTo == 'enterOTP') {
+            navigate('/verifyLoginOtp')
+        }
+    }, [otpErrors, redirectTo]);
 
     useEffect(() => {
         if (successMessage) {
@@ -95,15 +97,25 @@ function OTPLogin(props) {
                         Sign in
                     </Typography>
                     <Box component="form" onSubmit={userOTPLogin} noValidate sx={{ mt: 1 }}>
-                        <TextField
+                        {/* <TextField
                             margin="normal"
                             required
-                            type='number'
                             fullWidth
                             id="phone"
                             label="Phone Number"
                             name="phone"
                             autoComplete="phone"
+                            autoFocus
+                            onChange={handleInputs}
+                        /> */}
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            name="email"
+                            autoComplete="email"
                             autoFocus
                             onChange={handleInputs}
                         />

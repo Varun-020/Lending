@@ -10,6 +10,7 @@ import OTPLogin from "./App/login/OTPLogin";
 import UserPassLogin from "./App/login/UserPassLogin";
 import VerifyEmail from "./App/shared/VerifyEmail";
 import VerifyPhone from "./App/shared/VerifyPhone";
+import VerifyLoginOTP from "./App/shared/VerifyLoginOtp";
 
 
 
@@ -25,6 +26,7 @@ function App() {
           <Route path='/signup' exact element={<Register />} />
           <Route path='/verifyEmail' exact element={<VerifyEmail />} />
           <Route path='/verifyPhone' exact element={<VerifyPhone />} />
+          <Route path='/verifyLoginOtp' exact element={<VerifyLoginOTP />} />
           <Route component={<NotFound />} />
         </Routes>
       </Router>

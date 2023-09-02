@@ -33,7 +33,7 @@ function VerifyEmail() {
 
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const { emailVerificationErrors, userId, successMessage, redirectTo } = useSelector(state => state.AuthReducer);
+    const { emailVerificationErrors, userId, userEmail, successMessage, redirectTo, user } = useSelector(state => state.AuthReducer);
     const [state, setState] = useState({
         emailOtp: '',
     });
@@ -66,6 +66,11 @@ function VerifyEmail() {
         dispatch(removeSuccessMessage())
     }, [successMessage]);
 
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        }
+    }, [user]);
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -97,8 +102,17 @@ function VerifyEmail() {
                     <Typography component="h1" variant="h5">
                         Verify Email
                     </Typography>
+
                     <Box component="form" onSubmit={handleVerifyEmail} noValidate sx={{ mt: 1 }}>
+                        <Box component='div' sx={{ mt: 1, mb: 1, p: 2, background: '#b9eab8', color: "green" }}>
+                            <p>We have sent a verifiaction code to your</p>
+                            <Typography component="h1" variant="h5" textAlign='center'>
+                                email{` `}-{` `} {userEmail}
+                            </Typography>
+                        </Box>
+
                         <TextField
+                            autoFocus
                             margin="normal"
                             required
                             fullWidth
@@ -120,7 +134,7 @@ function VerifyEmail() {
                 </Box>
                 <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container>
-        </ThemeProvider>
+        </ThemeProvider >
     )
 }
 

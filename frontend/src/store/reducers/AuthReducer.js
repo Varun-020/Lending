@@ -1,7 +1,7 @@
 import {
 	CLOSE_LOADER, LOGIN_ERRORS, LOGOUT, REGISTER_ERRORS, SET_LOADER, SET_TOKEN,
 	SET_SUCCESS_MESSAGE, REMOVE_SUCCESS_MESSAGE, REMOVE_ERRORS, VERIFICATION_EMAIL_ERRORS, SET_RESPONSE,
-	VERIFICATION_PHONE_ERRORS
+	VERIFICATION_PHONE_ERRORS, SET_OTP_ERROR
 } from "../types/UserTypes";
 import jwt_decode from 'jwt-decode';
 
@@ -18,7 +18,9 @@ const initState = {
 	user: '',
 	successMessage: '',
 	redirectTo: '',
-	userId: ''
+	userId: '',
+	userEmail: '',
+	userPhone: ''
 }
 
 const verifyToken = (token) => {
@@ -50,6 +52,9 @@ const AuthReducer = (state = initState, action) => {
 	else if (action.type === REGISTER_ERRORS) {
 		return { ...state, registerErrors: action.payload };
 	}
+	else if (action.type === SET_OTP_ERROR) {
+		return { ...state, otpErrors: action.payload };
+	}
 	else if (action.type === REMOVE_ERRORS) {
 		return {
 			...state,
@@ -66,6 +71,9 @@ const AuthReducer = (state = initState, action) => {
 			user: user,
 			loginErrors: [],
 			registerErrors: [],
+			redirectTo: '',
+			userEmail: '',
+			userId: ''
 		};
 	}
 	else if (action.type === LOGOUT) {
@@ -101,14 +109,19 @@ const AuthReducer = (state = initState, action) => {
 		return {
 			...state,
 			redirectTo: action.payload.redirectTo,
-			userId: action.payload.userId
+			userId: action.payload.userId,
+			userEmail: action.payload.userEmail,
+			userPhone: action.payload.userPhone,
 		};
 	}
 	else if (action.type === LOGOUT) {
 		return {
 			...state,
 			user: '',
-			token: ''
+			token: '',
+			userId: '',
+			userEmail: '',
+			redirectTo: ''
 		};
 	}
 	else {

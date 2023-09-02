@@ -2,7 +2,7 @@ import React from 'react'
 import { Helmet } from 'react-helmet';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeSuccessMessage, verifyPhoneForRegister } from '../../store/asyncMethods/AuthMethods';
+import { removeSuccessMessage, verifyOTPForLogin } from '../../store/asyncMethods/AuthMethods';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
@@ -11,7 +11,6 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Typography, Container } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import EmailIcon from '@mui/icons-material/Email';
-import PermPhoneMsgIcon from '@mui/icons-material/PermPhoneMsg';
 
 function Copyright(props) {
     return (
@@ -30,35 +29,32 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 
-function VerifyPhone() {
+function VerifyLoginOTP() {
 
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const { phoneVerificationErrors, userId, userPhone, successMessage, user } = useSelector(state => state.AuthReducer);
+    const { emailVerificationErrors, userId, userEmail, successMessage, user } = useSelector(state => state.AuthReducer);
     const [state, setState] = useState({
-        phoneOtp: '',
+        emailOtp: '',
     });
 
 
     const handleNumericInputs = (e) => {
         const regex = /^[0-9\b]+$/;
         if (regex.test(e.target.value)) {
-            setState({ ...state, phoneOtp: e.target.value });
+            setState({ ...state, emailOtp: e.target.value });
         }
     }
-    const handleVerifyPhone = async (e) => {
+    const handleVerifyOTP = async (e) => {
         e.preventDefault();
         state.userId = userId
-        dispatch(verifyPhoneForRegister(state));
+        dispatch(verifyOTPForLogin(state));
     }
     useEffect(() => {
-        if (phoneVerificationErrors?.length > 0) {
-            phoneVerificationErrors.map((error) => toast.error(error.msg));
+        if (emailVerificationErrors?.length > 0) {
+            emailVerificationErrors.map((error) => toast.error(error.msg));
         }
-        if (user) {
-            navigate('/')
-        }
-    }, [phoneVerificationErrors, user]);
+    }, [emailVerificationErrors]);
 
     useEffect(() => {
         if (successMessage) {
@@ -67,12 +63,17 @@ function VerifyPhone() {
         dispatch(removeSuccessMessage())
     }, [successMessage]);
 
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        }
+    }, [user]);
 
     return (
         <ThemeProvider theme={defaultTheme}>
             <Helmet>
-                <title>Verify Phone</title>
-                <meta name="description" content="Phone verification while registering" />
+                <title>Verify Email</title>
+                <meta name="description" content="email verification while registering" />
             </Helmet>
             <Toaster
                 position='top-center' reverseOrder={false}
@@ -93,24 +94,26 @@ function VerifyPhone() {
                     }}
                 >
                     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <PermPhoneMsgIcon />
+                        <EmailIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Verify Phone
+                        Enter OTP
                     </Typography>
-                    <Box component="form" onSubmit={handleVerifyPhone} noValidate sx={{ mt: 1 }}>
+
+                    <Box component="form" onSubmit={handleVerifyOTP} noValidate sx={{ mt: 1 }}>
                         <Box component='div' sx={{ mt: 1, mb: 1, p: 2, background: '#b9eab8', color: "green" }}>
                             <p>We have sent a verifiaction code to your</p>
                             <Typography component="h1" variant="h5" textAlign='center'>
-                                number{` `}-{` `} {userPhone}
+                                email{` `}-{` `} {userEmail}
                             </Typography>
                         </Box>
+
                         <TextField
                             autoFocus
                             margin="normal"
                             required
                             fullWidth
-                            id="phoneOtp"
+                            id="emailOtp"
                             label="Enter OTP"
                             name="emailOtp"
                             autoComplete="emailOtp"
@@ -128,8 +131,8 @@ function VerifyPhone() {
                 </Box>
                 <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container>
-        </ThemeProvider>
+        </ThemeProvider >
     )
 }
 
-export default VerifyPhone
+export default VerifyLoginOTP
